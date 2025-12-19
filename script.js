@@ -1,188 +1,190 @@
-let gameState = {
-            level: 1,
-            blueScore: 0,
-            redScore: 0,
-            position: 0,
-            maxPosition: 5,
-            blueCurrentProblem: null,
-            redCurrentProblem: null
-        };
+ const game = {
+            state: {
+                level: 1,
+                blueScore: 0,
+                redScore: 0,
+                // Position 0 is center. -5 is Blue Win (left), +5 is Red Win (right)
+                position: 0, 
+                maxPosition: 5,
+                blueProblem: null,
+                redProblem: null,
+                isProcessing: false
+            },
 
-        function startGame(level) {
-            gameState.level = level;
-            gameState.blueScore = 0;
-            gameState.redScore = 0;
-            gameState.position = 0;
-            
-            document.getElementById('levelSelect').style.display = 'none';
-            document.getElementById('gameArea').classList.add('active');
-            document.getElementById('currentLevel').textContent = level;
-            
-            updateDisplay();
-            generateProblems();
-        }
-
-        function generateProblems() {
-            gameState.blueCurrentProblem = generateProblem(gameState.level);
-            gameState.redCurrentProblem = generateProblem(gameState.level);
-            
-            document.getElementById('blueProblem').textContent = gameState.blueCurrentProblem.question;
-            document.getElementById('redProblem').textContent = gameState.redCurrentProblem.question;
-        }
-
-        function generateProblem(level) {
-            if (level === 1) {
-                // Multiplication and Division
-                const operation = Math.random() > 0.5 ? '*' : '/';
-                if (operation === '*') {
-                    const a = Math.floor(Math.random() * 12) + 2;
-                    const b = Math.floor(Math.random() * 12) + 2;
-                    return {
-                        question: `${a} × ${b} = ?`,
-                        answer: a * b
-                    };
-                } else {
-                    const b = Math.floor(Math.random() * 10) + 2;
-                    const answer = Math.floor(Math.random() * 12) + 2;
-                    const a = b * answer;
-                    return {
-                        question: `${a} ÷ ${b} = ?`,
-                        answer: answer
-                    };
-                }
-            } else if (level === 2) {
-                // Quadratic equations - discriminant
-                const a = Math.floor(Math.random() * 5) + 1;
-                const b = Math.floor(Math.random() * 10) - 5;
-                const c = Math.floor(Math.random() * 10) - 5;
-                const discriminant = b * b - 4 * a * c;
-                return {
-                    question: `D = b² - 4ac, where a=${a}, b=${b}, c=${c}`,
-                    answer: discriminant
-                };
-            } else {
-                // Functions - evaluate f(x)
-                const a = Math.floor(Math.random() * 5) + 1;
-                const b = Math.floor(Math.random() * 10) - 5;
-                const x = Math.floor(Math.random() * 10) - 5;
-                const result = a * x + b;
-                return {
-                    question: `f(x) = ${a}x + ${b}, find f(${x})`,
-                    answer: result
-                };
-            }
-        }
-
-        function addDigit(team, digit) {
-            const input = document.getElementById(`${team}Answer`);
-            if (digit === '-' && input.value === '') {
-                input.value = '-';
-            } else if (digit !== '-') {
-                input.value += digit;
-            }
-        }
-
-        function clearAnswer(team) {
-            const input = document.getElementById(`${team}Answer`);
-            input.value = input.value.slice(0, -1);
-        }
-
-        function submitAnswer(team) {
-            const input = document.getElementById(`${team}Answer`);
-            const feedback = document.getElementById(`${team}Feedback`);
-            const userAnswer = parseInt(input.value);
-            const correctAnswer = team === 'blue' ? 
-                gameState.blueCurrentProblem.answer : 
-                gameState.redCurrentProblem.answer;
-
-            if (isNaN(userAnswer)) {
-                feedback.textContent = 'Please enter a valid number';
-                feedback.className = 'feedback incorrect';
-                return;
-            }
-
-            if (userAnswer === correctAnswer) {
-                feedback.textContent = '✓ Correct!';
-                feedback.className = 'feedback correct';
+            start: function(level) {
+                this.state.level = level;
+                this.state.blueScore = 0;
+                this.state.redScore = 0;
+                this.state.position = 0;
                 
-                if (team === 'blue') {
-                    gameState.blueScore++;
-                    gameState.position--;
-                } else {
-                    gameState.redScore++;
-                    gameState.position++;
-                }
+                document.getElementById('levelSelect').style.display = 'none';
+                document.getElementById('gameArea').classList.add('active');
                 
-                updateDisplay();
+                this.updateDisplay();
+                this.generateProblems();
+            },
+
+            generateProblems: function() {
+                this.state.blueProblem = this.createMathProblem(this.state.level);
+                this.state.redProblem = this.createMathProblem(this.state.level);
                 
-                setTimeout(() => {
-                    if (Math.abs(gameState.position) >= gameState.maxPosition) {
-                        endGame(team);
+                document.getElementById('blueProblem').textContent = this.state.blueProblem.question;
+                document.getElementById('redProblem').textContent = this.state.redProblem.question;
+            },
+
+            createMathProblem: function(level) {
+                // Helper for random integers
+                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+                if (level === 1) {
+                    // Level 1: Mult/Div
+                    const isMult = Math.random() > 0.5;
+                    if (isMult) {
+                        const a = rand(2, 12);
+                        const b = rand(2, 12);
+                        return { question: `${a} × ${b}`, answer: a * b };
                     } else {
-                        input.value = '';
-                        feedback.textContent = '';
-                        feedback.className = 'feedback';
-                        if (team === 'blue') {
-                            gameState.blueCurrentProblem = generateProblem(gameState.level);
-                            document.getElementById('blueProblem').textContent = gameState.blueCurrentProblem.question;
-                        } else {
-                            gameState.redCurrentProblem = generateProblem(gameState.level);
-                            document.getElementById('redProblem').textContent = gameState.redCurrentProblem.question;
-                        }
+                        const b = rand(2, 10);
+                        const ans = rand(2, 12);
+                        const a = b * ans; // Ensure clean division
+                        return { question: `${a} ÷ ${b}`, answer: ans };
                     }
-                }, 1500);
-            } else {
-                feedback.textContent = `✗ Wrong! Correct answer: ${correctAnswer}`;
-                feedback.className = 'feedback incorrect';
+                } else if (level === 2) {
+                    // Level 2: Quadratic D = b^2 - 4ac
+                    // Keep numbers small to avoid massive calculations
+                    const a = rand(1, 5);
+                    const b = rand(-8, 8);
+                    const c = rand(-5, 5);
+                    const discriminant = (b * b) - (4 * a * c);
+                    return { 
+                        question: `D = ?\n(a=${a}, b=${b}, c=${c})`, 
+                        answer: discriminant 
+                    };
+                } else {
+                    // Level 3: Linear Function f(x)
+                    const a = rand(-5, 5);
+                    const b = rand(-10, 10);
+                    const x = rand(-5, 5);
+                    const res = (a * x) + b;
+                    // Format signs nicely
+                    const sign = b >= 0 ? '+' : '';
+                    return { 
+                        question: `f(${x}) = ?\nf(x) = ${a}x ${sign} ${b}`, 
+                        answer: res 
+                    };
+                }
+            },
+
+            input: function(team, val) {
+                const el = document.getElementById(team + 'Answer');
+                if (val === 'del') {
+                    el.value = el.value.slice(0, -1);
+                } else if (val === '-') {
+                    if (el.value === '') el.value = '-';
+                } else {
+                    el.value += val;
+                }
+            },
+
+            submit: function(team) {
+                if (this.state.isProcessing) return; // Prevent double clicks
+
+                const inputEl = document.getElementById(team + 'Answer');
+                const feedbackEl = document.getElementById(team + 'Feedback');
+                const val = inputEl.value.trim();
                 
-                setTimeout(() => {
-                    input.value = '';
-                    feedback.textContent = '';
-                    feedback.className = 'feedback';
-                }, 2000);
+                if (val === '' || val === '-') return;
+
+                const userAns = parseInt(val);
+                const correctAns = team === 'blue' ? this.state.blueProblem.answer : this.state.redProblem.answer;
+
+                if (userAns === correctAns) {
+                    // CORRECT
+                    feedbackEl.textContent = "Correct! Pulling...";
+                    feedbackEl.className = "feedback correct-anim";
+                    
+                    if (team === 'blue') {
+                        this.state.blueScore++;
+                        this.state.position--; // Moves Left (Blue side)
+                    } else {
+                        this.state.redScore++;
+                        this.state.position++; // Moves Right (Red side)
+                    }
+
+                    this.state.isProcessing = true;
+                    this.updateDisplay();
+
+                    // Check win condition or reset
+                    setTimeout(() => {
+                        if (Math.abs(this.state.position) >= this.state.maxPosition) {
+                            this.gameOver(team);
+                        } else {
+                            // Reset for next round
+                            inputEl.value = '';
+                            feedbackEl.textContent = '';
+                            feedbackEl.className = "feedback";
+                            
+                            if (team === 'blue') {
+                                this.state.blueProblem = this.createMathProblem(this.state.level);
+                                document.getElementById('blueProblem').textContent = this.state.blueProblem.question;
+                            } else {
+                                this.state.redProblem = this.createMathProblem(this.state.level);
+                                document.getElementById('redProblem').textContent = this.state.redProblem.question;
+                            }
+                            this.state.isProcessing = false;
+                        }
+                    }, 1000);
+
+                } else {
+                    // INCORRECT
+                    feedbackEl.textContent = "Wrong! Try again.";
+                    feedbackEl.className = "feedback wrong-anim";
+                    inputEl.value = '';
+                    setTimeout(() => {
+                        feedbackEl.textContent = '';
+                        feedbackEl.className = "feedback";
+                    }, 1500);
+                }
+            },
+
+            updateDisplay: function() {
+                document.getElementById('blueScore').textContent = this.state.blueScore;
+                document.getElementById('redScore').textContent = this.state.redScore;
+
+                // LOGIC FOR ROPE MOVEMENT
+                // Max movement is roughly 45% of container width to keep it visible
+                const percentageShift = (this.state.position / this.state.maxPosition) * 45;
+                
+                const physicsLayer = document.getElementById('physicsLayer');
+                physicsLayer.style.transform = `translateX(${percentageShift}%)`;
+            },
+
+            gameOver: function(winner) {
+                const modal = document.getElementById('gameOver');
+                const title = document.getElementById('winnerText');
+                const score = document.getElementById('finalScore');
+
+                if (winner === 'blue') {
+                    title.textContent = "🎉 Blue Team Wins!";
+                    title.style.color = "#4c63d2";
+                } else {
+                    title.textContent = "🎉 Red Team Wins!";
+                    title.style.color = "#f5576c";
+                }
+                score.textContent = `Blue ${this.state.blueScore} - ${this.state.redScore} Red`;
+                modal.classList.add('active');
+            },
+
+            reset: function() {
+                document.getElementById('gameOver').classList.remove('active');
+                document.getElementById('gameArea').classList.remove('active');
+                document.getElementById('levelSelect').style.display = 'block';
+                
+                // Clear inputs
+                document.getElementById('blueAnswer').value = '';
+                document.getElementById('redAnswer').value = '';
+                document.getElementById('blueFeedback').textContent = '';
+                document.getElementById('redFeedback').textContent = '';
+                this.state.isProcessing = false;
             }
-        }
-
-        function updateDisplay() {
-            document.getElementById('blueScore').textContent = gameState.blueScore;
-            document.getElementById('redScore').textContent = gameState.redScore;
-            
-            const marker = document.getElementById('marker');
-            const percentage = 50 + (gameState.position / gameState.maxPosition) * 40;
-            marker.style.left = `${percentage}%`;
-            
-            const blueChar = document.getElementById('blueChar');
-            const redChar = document.getElementById('redChar');
-            blueChar.style.left = `${20 + (gameState.position / gameState.maxPosition) * 30}%`;
-            redChar.style.right = `${20 - (gameState.position / gameState.maxPosition) * 30}%`;
-        }
-
-        function endGame(winner) {
-            const gameOver = document.getElementById('gameOver');
-            const winnerText = document.getElementById('winnerText');
-            const finalScore = document.getElementById('finalScore');
-            
-            if (winner === 'blue') {
-                winnerText.textContent = '🎉 Blue Team Wins! 🎉';
-                winnerText.style.color = '#667eea';
-            } else {
-                winnerText.textContent = '🎉 Red Team Wins! 🎉';
-                winnerText.style.color = '#f5576c';
-            }
-            
-            finalScore.textContent = `Blue ${gameState.blueScore} - ${gameState.redScore} Red`;
-            gameOver.classList.add('active');
-        }
-
-        function restartGame() {
-            document.getElementById('gameOver').classList.remove('active');
-            document.getElementById('gameArea').classList.remove('active');
-            document.getElementById('levelSelect').style.display = 'block';
-            
-            document.getElementById('blueAnswer').value = '';
-            document.getElementById('redAnswer').value = '';
-            document.getElementById('blueFeedback').textContent = '';
-            document.getElementById('redFeedback').textContent = '';
-            document.getElementById('blueFeedback').className = 'feedback';
-            document.getElementById('redFeedback').className = 'feedback';
-        }
+        };
