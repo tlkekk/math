@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tug of War Math Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="level-select" id="levelSelect">
+            <h1>🎮 Tug of War Math Game 🎮</h1>
+            <p style="font-size: 1.2em; margin-bottom: 30px;">Choose your difficulty level:</p>
+            <div class="level-buttons">
+                <button class="level-btn" onclick="startGame(1)">Level 1<br>Easy<br>(Multiplication & Division)</button>
+                <button class="level-btn" onclick="startGame(2)">Level 2<br>Medium<br>(Quadratic Equations)</button>
+                <button class="level-btn" onclick="startGame(3)">Level 3<br>Hard<br>(Functions)</button>
+            </div>
+        </div>
+
+        <div class="game-area" id="gameArea">
+            <div class="score-area">
+                <div class="team-score">
+                    <div>🔵 Blue Team</div>
+                    <div id="blueScore">0</div>
+                </div>
+                <div class="team-score">
+                    <div>Current Level: <span id="currentLevel"></span></div>
+                </div>
+                <div class="team-score">
+                    <div>🔴 Red Team</div>
+                    <div id="redScore">0</div>
+                </div>
+            </div>
+
+            <div class="rope-area">
+                <div class="center-line"></div>
+                <div class="rope"></div>
+                <div class="character blue-char" id="blueChar">🧑‍🦰</div>
+                <div class="character red-char" id="redChar">🧔</div>
+                <div class="marker" id="marker"></div>
+            </div>
+
+            <div class="problem-area">
+                <div class="team-section blue-section">
+                    <h2>🔵 Blue Team</h2>
+                    <div class="problem" id="blueProblem">Waiting...</div>
+                    <input type="text" class="answer-input" id="blueAnswer" readonly placeholder="Enter answer">
+                    <div class="keyboard">
+                        <button class="key" onclick="addDigit('blue', '7')">7</button>
+                        <button class="key" onclick="addDigit('blue', '8')">8</button>
+                        <button class="key" onclick="addDigit('blue', '9')">9</button>
+                        <button class="key" onclick="addDigit('blue', '4')">4</button>
+                        <button class="key" onclick="addDigit('blue', '5')">5</button>
+                        <button class="key" onclick="addDigit('blue', '6')">6</button>
+                        <button class="key" onclick="addDigit('blue', '1')">1</button>
+                        <button class="key" onclick="addDigit('blue', '2')">2</button>
+                        <button class="key" onclick="addDigit('blue', '3')">3</button>
+                        <button class="key" onclick="addDigit('blue', '-')">-</button>
+                        <button class="key" onclick="addDigit('blue', '0')">0</button>
+                        <button class="key" onclick="clearAnswer('blue')">⌫</button>
+                    </div>
+                    <button class="submit-btn" onclick="submitAnswer('blue')">Submit Answer</button>
+                    <div class="feedback" id="blueFeedback"></div>
+                </div>
+
+                <div class="team-section red-section">
+                    <h2>🔴 Red Team</h2>
+                    <div class="problem" id="redProblem">Waiting...</div>
+                    <input type="text" class="answer-input" id="redAnswer" readonly placeholder="Enter answer">
+                    <div class="keyboard">
+                        <button class="key" onclick="addDigit('red', '7')">7</button>
+                        <button class="key" onclick="addDigit('red', '8')">8</button>
+                        <button class="key" onclick="addDigit('red', '9')">9</button>
+                        <button class="key" onclick="addDigit('red', '4')">4</button>
+                        <button class="key" onclick="addDigit('red', '5')">5</button>
+                        <button class="key" onclick="addDigit('red', '6')">6</button>
+                        <button class="key" onclick="addDigit('red', '1')">1</button>
+                        <button class="key" onclick="addDigit('red', '2')">2</button>
+                        <button class="key" onclick="addDigit('red', '3')">3</button>
+                        <button class="key" onclick="addDigit('red', '-')">-</button>
+                        <button class="key" onclick="addDigit('red', '0')">0</button>
+                        <button class="key" onclick="clearAnswer('red')">⌫</button>
+                    </div>
+                    <button class="submit-btn" onclick="submitAnswer('red')">Submit Answer</button>
+                    <div class="feedback" id="redFeedback"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-over" id="gameOver">
+        <div class="game-over-content">
+            <h1 id="winnerText">🎉 Blue Team Wins! 🎉</h1>
+            <p style="font-size: 1.5em; margin-top: 20px;">Final Score: <span id="finalScore"></span></p>
+            <button class="restart-btn" onclick="restartGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script src="script.js">
+    </script>
+</body>
+</html>
